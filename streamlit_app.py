@@ -83,7 +83,7 @@ def analyze_image(image_path, api_key):
     
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
         
         img = Image.open(image_path)
         prompt = """
