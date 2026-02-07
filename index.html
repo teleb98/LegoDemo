@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Lego World TV App" />
+    <title>Lego World</title>
+    <link rel="stylesheet" href="css/style_vanilla.css" />
+</head>
+
+<body>
+    <div id="app">
+        <!-- Dashboard View -->
+        <div id="dashboard" class="view active">
+            <div class="background-container">
+                <img id="bg-image" src="assets/city1.png" alt="Background" />
+            </div>
+
+            <!-- Navigation Overlay (Optional, if we want to show list) -->
+            <div class="nav-overlay">
+                <!-- Visual indicators or text could go here, 
+                     but for now we rely on the background image changing as per requirements -->
+            </div>
+        </div>
+
+        <!-- Video Player View -->
+        <div id="video-player" class="view hidden">
+            <video id="main-video" width="1920" height="1080">
+                <source id="video-source" src="" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

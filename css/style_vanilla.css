@@ -1,0 +1,66 @@
+/* Basic Reset and TV Layout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 1920px;
+    height: 1080px;
+    background-color: #000;
+    overflow: hidden;
+    font-family: 'SamsungOne', sans-serif;
+    /* Tizen default font */
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.view {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+/* Dashboard Styles */
+.background-container {
+    width: 100%;
+    height: 100%;
+}
+
+#bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Video Player Styles */
+#video-player {
+    background-color: #000;
+    z-index: 20;
+    /* Ensure video is on top when active */
+}
+
+#main-video {
+    width: 100%;
+    height: 100%;
+}
