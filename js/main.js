@@ -1,136 +1,58 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // --- Constants ---
-    const WORLDS = ['City', 'Space', 'Game'];
-    const ASSETS = {
+document.addEventListener('DOMContentLoaded', () => {
+    const bgImage = document.getElementById('bg-image');
+    // We could add a video element here if needed, but for now we just swap the BG
+    // or we can reuse the existing video structure if we want to play videos.
+
+    let currentTheme = 'default';
+
+    // Theme Mapping
+    const themeAssets = {
         'City': { img: 'assets/city1.png', video: 'assets/city.mp4' },
+        'Creator': { img: 'assets/city1.png', video: 'assets/city.mp4' },
+        'Architecture': { img: 'assets/city1.png', video: 'assets/city.mp4' },
+
         'Space': { img: 'assets/space.png', video: 'assets/space.mp4' },
-        'Game': { img: 'assets/game.png', video: null }
+        'Star Wars': { img: 'assets/space.png', video: 'assets/space.mp4' },
+
+        'default': { img: 'assets/game.png', video: null }
     };
 
-    // --- State ---
-    let currentIndex = 0; // 0: City, 1: Space, 2: Game
-    let isVideoPlaying = false;
+    function updateUI(theme, set_name) {
+        console.log(`Updating UI to theme: ${theme}`);
 
-    // --- DOM Elements ---
-    const dashboardView = document.getElementById('dashboard');
-    const videoPlayerView = document.getElementById('video-player');
-    const bgImage = document.getElementById('bg-image');
-    const videoElement = document.getElementById('main-video');
-    const videoSource = document.getElementById('video-source');
+        // Normalize theme key
+        let assets = themeAssets['default'];
 
-    // --- Initialization ---
-    function init() {
-        updateDashboard();
-        setupKeyHandlers();
-        setupVideoEvents();
-    }
-
-    // --- Dashboard Logic ---
-    function updateDashboard() {
-        const currentWorld = WORLDS[currentIndex];
-        const assetPath = ASSETS[currentWorld].img;
-        bgImage.src = assetPath;
-        console.log(`Switched to world: ${currentWorld}`);
-    }
-
-    function navigate(direction) {
-        if (isVideoPlaying) return; // Prevent navigation while video plays
-
-        if (direction === 'UP') {
-            currentIndex = (currentIndex - 1 + WORLDS.length) % WORLDS.length;
-        } else if (direction === 'DOWN') {
-            currentIndex = (currentIndex + 1) % WORLDS.length;
-        }
-        updateDashboard();
-    }
-
-    // --- Video Logic ---
-    function playVideo() {
-        const currentWorld = WORLDS[currentIndex];
-        const videoPath = ASSETS[currentWorld].video;
-
-        if (!videoPath) {
-            console.log('No video for this world');
-            return;
-        }
-
-        isVideoPlaying = true;
-
-        // Show Video View
-        dashboardView.classList.remove('active');
-        dashboardView.classList.add('hidden');
-        videoPlayerView.classList.remove('hidden');
-        videoPlayerView.classList.add('active');
-
-        // Load and Play
-        videoSource.src = videoPath;
-        videoElement.load();
-        videoElement.play().catch(e => console.error('Play error:', e));
-
-        // Ensure focus is on video to capture back keys if needed? 
-        // In simple vanilla JS, global key listener handles it.
-    }
-
-    function stopVideo() {
-        if (!isVideoPlaying) return;
-
-        videoElement.pause();
-        videoElement.currentTime = 0;
-        videoSource.src = ""; // Unload
-
-        isVideoPlaying = false;
-
-        // Restore Dashboard View
-        videoPlayerView.classList.remove('active');
-        videoPlayerView.classList.add('hidden');
-        dashboardView.classList.remove('hidden');
-        dashboardView.classList.add('active');
-
-        // Ensure focus returns to dashboard context (if we were using spatial nav)
-    }
-
-    function setupVideoEvents() {
-        videoElement.addEventListener('ended', function () {
-            console.log('Video ended');
-            stopVideo();
-        });
-
-        // Optional: Error handling
-        videoElement.addEventListener('error', function (e) {
-            console.error('Video error', e);
-            stopVideo();
-        });
-    }
-
-    // --- Input Handling ---
-    function setupKeyHandlers() {
-        document.addEventListener('keydown', function (e) {
-            console.log('Key pressed:', e.keyCode, e.key);
-
-            // Tizen Remote Keys (and simplified PC mapping)
-            switch (e.keyCode) {
-                case 38: // UP Arrow
-                    navigate('UP');
-                    break;
-                case 40: // DOWN Arrow
-                    navigate('DOWN');
-                    break;
-                case 13: // Enter / OK
-                    if (!isVideoPlaying) {
-                        playVideo();
-                    }
-                    break;
-                case 10009: // Return / Back (Tizen Code)
-                case 27:    // Esc (PC fallback)
-                    if (isVideoPlaying) {
-                        stopVideo();
-                    }
-                    break;
-                default:
-                    break;
+        // Simple fuzzy match or direct lookup
+        for (const key in themeAssets) {
+            if (theme.includes(key)) {
+                assets = themeAssets[key];
+                break;
             }
-        });
+        }
+
+        // Update Background
+        bgImage.src = assets.img;
+
+        // Optional: Show a toast or overlay with the detected set name
+        // (Not implementing full video player switch here to keep it simple, 
+        // effectively just changing the "ambient mode" background)
     }
 
-    init();
+    async function pollState() {
+        try {
+            const response = await fetch('/api/state');
+            const state = await response.json();
+
+            if (state.current_theme && state.current_theme !== currentTheme) {
+                currentTheme = state.current_theme;
+                updateUI(currentTheme, state.detected_set);
+            }
+        } catch (error) {
+            console.error("Error polling state:", error);
+        }
+    }
+
+    // Poll every 2 seconds
+    setInterval(pollState, 2000);
 });

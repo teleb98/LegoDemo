@@ -1,0 +1,195 @@
+:root {
+    --lego-red: #E3000B;
+    --lego-yellow: #FFCF00;
+    --lego-blue: #0055BF;
+    --lego-white: #FFFFFF;
+    --lego-black: #2C2C2C;
+    --lego-gray: #F8F8F8;
+    --font-stack: 'Cera Pro', sans-serif;
+    /* Fallback to sans-serif */
+}
+
+@font-face {
+    font-family: 'Cera Pro';
+    src: local('Arial'), local('Helvetica');
+    /* Mock for now, use system sans */
+}
+
+body {
+    font-family: var(--font-stack);
+    background-color: var(--lego-white);
+    /* Clean white background */
+    margin: 0;
+    padding: 0;
+    color: var(--lego-black);
+    padding-bottom: 100px;
+    /* Space for FAB */
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+header {
+    background-color: var(--lego-yellow);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--lego-red);
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    /* Lego logo text style emulation */
+    -webkit-text-stroke: 1px var(--lego-black);
+    text-shadow: 2px 2px 0px var(--lego-yellow), 4px 4px 0px var(--lego-black);
+}
+
+/* Product List */
+#product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.product-card {
+    background: var(--lego-white);
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    /* Lego blocks are somewhat sharp, but UI usually has soft rounding */
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:active {
+    transform: scale(0.98);
+}
+
+.product-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    /* Keep whole box visible */
+    background-color: var(--lego-gray);
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.product-info {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.product-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--lego-black);
+    line-height: 1.3;
+}
+
+.product-set-num {
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: 500;
+    background-color: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Floating Action Button (FAB) -> "Scan" Button */
+.fab-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.fab {
+    pointer-events: auto;
+    background-color: var(--lego-blue);
+    /* Blue distinct from red header */
+    color: var(--lego-white);
+    /* Rectangular button with rounded corners like a brick? Or standard pill? */
+    /* Let's go with a big, round, inviting button or a wide pill */
+    width: auto;
+    height: 56px;
+    padding: 0 2rem;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 85, 191, 0.4);
+    border: 2px solid var(--lego-white);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    transition: transform 0.2s, background-color 0.2s;
+    gap: 0.5rem;
+}
+
+.fab:active {
+    transform: scale(0.95);
+    background-color: #004499;
+}
+
+.fab svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 8px solid var(--lego-gray);
+    border-top: 8px solid var(--lego-red);
+    border-radius: 50%;
+}
+
+p {
+    font-weight: 700;
+    color: var(--lego-black);
+}
+
+.delete-btn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+}
+
+.delete-btn:hover {
+    color: var(--lego-red);
+}
+
+.product-card {
+    position: relative;
+    /* For absolute positioning of delete button */
+}
