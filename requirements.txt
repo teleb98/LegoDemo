@@ -3,5 +3,5 @@ flask
 gunicorn
 python-dotenv
 flask-cors
-google-generativeai>=0.3.0
+google-generativeai==0.8.3
 Pillow
