@@ -147,8 +147,14 @@ st.markdown("""
 # Sidebar
 with st.sidebar:
     st.title("⚙️ Settings")
-    api_key = st.text_input("Google AI API Key", type="password")
-    st.info("Enter key to use real AI identification. Leave blank for mock mode.")
+    
+    # Check if key is in secrets
+    if "GOOGLE_API_KEY" in st.secrets:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+        st.success("API Key loaded from Secrets!")
+    else:
+        api_key = st.text_input("Google AI API Key", type="password")
+        st.info("Enter key to use real AI identification. Leave blank for mock mode.")
 
 st.title("MY LEGO SETS")
 
