@@ -97,13 +97,11 @@ def analyze_image(image_path, api_key):
         response = client.models.generate_content(
             model='gemini-1.5-flash',
             contents=[
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part.from_text(prompt),
-                        types.Part.from_bytes(data=image_data, mime_type="image/jpeg")
-                    ]
-                )
+                types.Part(text=prompt),
+                types.Part(inline_data=types.Blob(
+                    mime_type="image/jpeg",
+                    data=image_data
+                ))
             ]
         )
         
