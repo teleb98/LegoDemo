@@ -1,11 +1,5 @@
-import streamlit as st
-import sqlite3
-import os
-import time
-import random
-import json
-from PIL import Image
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 # Configuration
 st.set_page_config(page_title="Lego World", page_icon="🧱", layout="wide")
@@ -82,10 +76,11 @@ def analyze_image(image_path, api_key):
         }
     
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        client = genai.Client(api_key=api_key)
         
-        img = Image.open(image_path)
+        with open(image_path, 'rb') as f:
+            image_data = f.read()
+        
         prompt = """
         Identify this Lego set. Return a JSON object with:
         - name: The name of the set
@@ -93,10 +88,23 @@ def analyze_image(image_path, api_key):
         - theme: The main theme (e.g., Star Wars, Harry Potter, City, Technic, Ninjago). 
                  If unsure, pick the closest match from [Star Wars, Harry Potter, City, Technic, Ninjago].
         """
-        response = model.generate_content([prompt, img])
+        
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_text(prompt),
+                        types.Part.from_bytes(data=image_data, mime_type="image/jpeg")
+                    ]
+                )
+            ]
+        )
+        
         text = response.text
         # Clean up code blocks if present
-        text = text.replace('```json', '').replace('```', '')
+        text = text.replace('```json', '').replace('```', '').strip()
         return json.loads(text)
     except Exception as e:
         st.error(f"AI Error: {e}")
