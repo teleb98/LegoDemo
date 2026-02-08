@@ -22,12 +22,14 @@ def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS products
-                 (id INTEGER PRIMARY KEY, name TEXT, setNumber TEXT, image TEXT, created_at INTEGER, theme TEXT)''')
-    # Add theme column if not exists (migration hack for dev)
-    try:
-        c.execute("ALTER TABLE products ADD COLUMN theme TEXT")
-    except:
-        pass
+                 (id INTEGER PRIMARY KEY, name TEXT, setNumber TEXT, image TEXT, created_at INTEGER, theme TEXT, 
+                  pieces INTEGER, age TEXT, description TEXT)''')
+    # Add new columns if not exists (migration)
+    for col in ['theme TEXT', 'pieces INTEGER', 'age TEXT', 'description TEXT']:
+        try:
+            c.execute(f"ALTER TABLE products ADD COLUMN {col}")
+        except:
+            pass
     conn.commit()
     conn.close()
 
@@ -38,7 +40,7 @@ def get_products():
     conn.close()
     return [dict(row) for row in products]
 
-def add_product(image_path, name, set_number, theme):
+def add_product(image_path, name, set_number, theme, pieces=None, age=None, description=None):
     created_at = int(time.time())
     # Ensure image path is relative for DB
     if image_path.startswith(UPLOADS_DIR):
@@ -48,8 +50,9 @@ def add_product(image_path, name, set_number, theme):
 
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("INSERT INTO products (name, setNumber, image, created_at, theme) VALUES (?, ?, ?, ?, ?)",
-              (name, set_number, db_image_path, created_at, theme))
+    c.execute("""INSERT INTO products (name, setNumber, image, created_at, theme, pieces, age, description) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+              (name, set_number, db_image_path, created_at, theme, pieces, age, description))
     conn.commit()
     conn.close()
 
@@ -87,11 +90,13 @@ def analyze_image(image_path, api_key):
             image_data = f.read()
         
         prompt = """
-        Identify this Lego set. Return a JSON object with:
+        Identify this Lego set and provide detailed information. Return a JSON object with:
         - name: The name of the set
-        - setNumber: The set number
-        - theme: The main theme (e.g., Star Wars, Harry Potter, City, Technic, Ninjago). 
-                 If unsure, pick the closest match from [Star Wars, Harry Potter, City, Technic, Ninjago].
+        - setNumber: The set number (e.g., "75192")
+        - theme: The main theme (e.g., Star Wars, Harry Potter, City, Technic, Ninjago)
+        - pieces: Number of pieces (integer, estimate if unknown)
+        - age: Recommended age range (e.g., "9+" or "18+")
+        - description: A brief 1-2 sentence description of what the set includes and its key features
         """
         
         response = client.models.generate_content(
@@ -187,7 +192,10 @@ with tab1:
                 result = analyze_image(filepath, api_key)
                 
                 if result:
-                    add_product(filename, result['name'], result['setNumber'], result['theme'])
+                    add_product(
+                        filename, result['name'], result['setNumber'], result['theme'],
+                        result.get('pieces'), result.get('age'), result.get('description')
+                    )
                     update_tv_state(result['theme'], result['name'])
                     st.success(f"Identified: {result['name']} ({result['theme']})")
                     time.sleep(1)
@@ -207,7 +215,10 @@ with tab2:
                 with st.spinner("Analyzing..."):
                     result = analyze_image(filepath, api_key)
                     if result:
-                        add_product(selected_file, result['name'], result['setNumber'], result['theme'])
+                        add_product(
+                            selected_file, result['name'], result['setNumber'], result['theme'],
+                            result.get('pieces'), result.get('age'), result.get('description')
+                        )
                         update_tv_state(result['theme'], result['name'])
                         st.success(f"Identified: {result['name']} ({result['theme']})")
                         time.sleep(1)
@@ -228,15 +239,33 @@ else:
             if img_path.startswith('/uploads/'): img_path = img_path.replace('/uploads/', '')
             full_img_path = os.path.join(UPLOADS_DIR, img_path)
             
-            try:
-                image = Image.open(full_img_path)
-            except:
-                image = "https://via.placeholder.com/300?text=Lego"
-
             with st.container(border=True):
-                st.image(image, use_container_width=True)
-                st.markdown(f"**{product['name']}**")
-                st.caption(f"#{product['setNumber']} | {product.get('theme', 'Unknown')}")
-                if st.button("Delete", key=f"del_{product['id']}", type="primary", use_container_width=True):
+                # Display Image with shadow effect
+                try:
+                    st.image(full_img_path, use_container_width=True)
+                except:
+                    st.image("https://via.placeholder.com/400x300?text=Lego+Set", use_container_width=True)
+                
+                # Product Title
+                st.markdown(f"### {product['name']}")
+                
+                # Set Number and Theme Badge
+                st.markdown(f"**Set #{product['setNumber']}** · `{product.get('theme', 'Unknown')}`")
+                
+                # AI Details
+                if product.get('pieces') or product.get('age'):
+                    details = []
+                    if product.get('pieces'):
+                        details.append(f"🧱 {product['pieces']} pieces")
+                    if product.get('age'):
+                        details.append(f"👤 Ages {product['age']}")
+                    st.caption(" · ".join(details))
+                
+                # Description
+                if product.get('description'):
+                    st.markdown(f"*{product['description']}*")
+                
+                # Delete Button
+                if st.button("🗑️ Delete", key=f"del_{product['id']}", type="secondary", use_container_width=True):
                     delete_product(product['id'])
                     st.rerun()
