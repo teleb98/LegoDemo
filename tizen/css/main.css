@@ -1,0 +1,334 @@
+/* LegoWorld V3 - Premium Tizen TV Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --lego-red: #E3000B;
+    --lego-yellow: #FFCF00;
+    --lego-blue: #0055BF;
+    --lego-white: #FFFFFF;
+    --lego-black: #2C2C2C;
+    --lego-gray: #F5F5F5;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #000;
+    overflow: hidden;
+    width: 1920px;
+    height: 1080px;
+}
+
+/* Background Image */
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Common Utilities */
+.hidden {
+    display: none !important;
+}
+
+.active {
+    display: block;
+}
+
+/* Dashboard View */
+#dashboard {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scene-title {
+    font-size: 120px;
+    font-weight: 900;
+    color: var(--lego-yellow);
+    text-transform: uppercase;
+    text-shadow: 
+        8px 8px 0px var(--lego-black),
+        0 0 50px rgba(255, 207, 0, 0.5);
+    letter-spacing: 8px;
+    animation: titlePulse 2s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Video Player View */
+#video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    background: #000;
+}
+
+#main-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* My Photos View */
+#my-photos-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    background: linear-gradient(135deg, var(--lego-yellow) 0%, #FFE066 100%);
+    padding: 60px 80px;
+    overflow: hidden;
+}
+
+.photos-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.photos-title {
+    font-size: 80px;
+    font-weight: 900;
+    color: var(--lego-red);
+    text-transform: uppercase;
+    text-shadow: 6px 6px 0px var(--lego-black);
+    letter-spacing: 4px;
+}
+
+#new-photo-indicator {
+    position: absolute;
+    top: 20px;
+    right: 80px;
+    background: var(--lego-red);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 50px;
+    font-size: 32px;
+    font-weight: 700;
+    border: 6px solid var(--lego-black);
+    box-shadow: 0 8px 0 var(--lego-black);
+    animation: slideIn 0.5s ease-out, pulse 1.5s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.pulse-dot {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    animation: dotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(300px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes dotPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Photo Grid */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-height: 800px;
+    overflow-y: auto;
+    padding-right: 20px;
+}
+
+/* Custom scrollbar */
+.photo-grid::-webkit-scrollbar {
+    width: 12px;
+}
+
+.photo-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.photo-grid::-webkit-scrollbar-thumb {
+    background: var(--lego-blue);
+    border-radius: 10px;
+    border: 3px solid var(--lego-black);
+}
+
+.photo-card {
+    background: white;
+    border-radius: 30px;
+    border: 6px solid var(--lego-black);
+    box-shadow: 0 12px 0 var(--lego-black);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.photo-card:hover,
+.photo-card.focused {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.photo-card.new {
+    animation: cardAppear 0.5s ease-out;
+    border-color: var(--lego-red);
+}
+
+@keyframes cardAppear {
+    from {
+        transform: scale(0.8) rotateX(90deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotateX(0deg);
+        opacity: 1;
+    }
+}
+
+.photo-card img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-info {
+    padding: 25px;
+    background: var(--lego-white);
+}
+
+.photo-caption {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--lego-black);
+    margin-bottom: 10px;
+}
+
+.photo-time {
+    font-size: 20px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.new-badge {
+    display: inline-block;
+    background: var(--lego-red);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 20px;
+    font-weight: 900;
+    border: 3px solid var(--lego-black);
+}
+
+.photos-footer {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: var(--lego-black);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.photos-footer p {
+    margin: 5px 0;
+}
+
+.key-hint {
+    display: inline-block;
+    background: var(--lego-blue);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 12px;
+    border: 4px solid var(--lego-black);
+    font-weight: 900;
+    margin: 0 10px;
+}
+
+/* Fullscreen Photo View */
+#fullscreen-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 30;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#fullscreen-img {
+    max-width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+    border: 8px solid var(--lego-yellow);
+    box-shadow: 0 0 100px rgba(255, 207, 0, 0.5);
+    animation: zoomIn 0.4s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.fullscreen-caption {
+    margin-top: 30px;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--lego-yellow);
+    text-shadow: 4px 4px 0px var(--lego-black);
+}

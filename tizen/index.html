@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegoWorld V3</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Background Image -->
+    <img id="bg-image" src="assets/smartbrick1.jpg" alt="Background" class="background">
+
+    <!-- Dashboard View (Main Scene Navigation) -->
+    <div id="dashboard" class="active">
+        <div class="scene-title" id="scene-title">SmartBrick</div>
+    </div>
+
+    <!-- Video Player View -->
+    <div id="video-player" class="hidden">
+        <video id="main-video" autoplay>
+            <source id="video-source" src="" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- My Photos Gallery View -->
+    <div id="my-photos-view" class="hidden">
+        <div class="photos-header">
+            <h1 class="photos-title">📸 My Lego Collection</h1>
+            <div id="new-photo-indicator" class="hidden">
+                <span class="pulse-dot"></span>
+                New Photo Added!
+            </div>
+        </div>
+        <div id="photo-grid" class="photo-grid">
+            <!-- Photos will be dynamically loaded here -->
+        </div>
+        <div class="photos-footer">
+            <p>Press <span class="key-hint">ENTER</span> to view photo fullscreen</p>
+            <p>Press <span class="key-hint">BACK</span> to return</p>
+        </div>
+    </div>
+
+    <!-- Fullscreen Photo View -->
+    <div id="fullscreen-photo" class="hidden">
+        <img id="fullscreen-img" src="" alt="Fullscreen Photo">
+        <div class="fullscreen-caption" id="fullscreen-caption"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
