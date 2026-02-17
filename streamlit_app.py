@@ -132,45 +132,75 @@ tab1, tab2 = st.tabs(["📸 Add Photo", "🖼️ My Gallery"])
 with tab1:
     st.markdown("### Upload Your Lego Photos")
     
-    # File uploader
-    uploaded_file = st.file_uploader(
-        "Choose a photo", 
+    # File uploader - now supports multiple files
+    uploaded_files = st.file_uploader(
+        "Choose photo(s)", 
         type=['jpg', 'png', 'jpeg'],
-        help="Upload a photo of your Lego set"
+        accept_multiple_files=True,
+        help="Upload one or more photos of your Lego sets"
     )
     
-    # Optional caption
-    caption = st.text_input("Add a caption (optional)", placeholder="e.g., Millennium Falcon, City Fire Station...")
+    # Optional caption for all photos
+    caption = st.text_input("Add a caption for all photos (optional)", placeholder="e.g., My City Collection, Christmas 2025...")
     
     # Submit button
     if st.button("📤 Add to Collection", type="primary", use_container_width=True):
-        if uploaded_file:
-            with st.spinner("Saving to your collection..."):
-                try:
-                    # Prepare file for upload
-                    files = {'file': uploaded_file.getvalue()}
-                    data = {'caption': caption} if caption else {}
-                    
-                    # Upload to backend
-                    response = requests.post(
-                        f"{BACKEND_URL}/api/photos", 
-                        files=files, 
-                        data=data,
-                        headers={'ngrok-skip-browser-warning': 'true'}
-                    )
-                    
-                    if response.status_code == 200:
-                        st.success("✅ Photo added successfully!")
-                        st.balloons()
-                        time.sleep(1)
-                        st.rerun()
+        if uploaded_files:
+            total_files = len(uploaded_files)
+            with st.spinner(f"Uploading {total_files} photo(s)..."):
+                success_count = 0
+                error_count = 0
+                
+                # Create a progress bar
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                for idx, uploaded_file in enumerate(uploaded_files):
+                    try:
+                        # Update progress
+                        progress = (idx + 1) / total_files
+                        progress_bar.progress(progress)
+                        status_text.text(f"Uploading {uploaded_file.name}... ({idx + 1}/{total_files})")
+                        
+                        # Prepare file for upload
+                        files = {'file': uploaded_file.getvalue()}
+                        data = {'caption': caption} if caption else {}
+                        
+                        # Upload to backend
+                        response = requests.post(
+                            f"{BACKEND_URL}/api/photos", 
+                            files=files, 
+                            data=data,
+                            headers={'ngrok-skip-browser-warning': 'true'}
+                        )
+                        
+                        if response.status_code == 200:
+                            success_count += 1
+                        else:
+                            error_count += 1
+                            st.error(f"Failed to upload {uploaded_file.name}: {response.text}")
+                    except Exception as e:
+                        error_count += 1
+                        st.error(f"Error uploading {uploaded_file.name}: {str(e)}")
+                
+                # Clear progress indicators
+                progress_bar.empty()
+                status_text.empty()
+                
+                # Show final result
+                if success_count > 0:
+                    if success_count == total_files:
+                        st.success(f"✅ All {success_count} photo(s) added successfully!")
                     else:
-                        st.error(f"Failed to upload photo: {response.text}")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-                    st.info("Make sure the backend server is running on http://localhost:5000")
+                        st.success(f"✅ {success_count} photo(s) added successfully!")
+                        st.warning(f"⚠️ {error_count} photo(s) failed to upload")
+                    st.balloons()
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Failed to upload any photos. Make sure the backend server is running.")
         else:
-            st.warning("Please take a photo or upload a file first!")
+            st.warning("Please select one or more photos to upload!")
 
 with tab2:
     st.markdown("### Your Collection")
