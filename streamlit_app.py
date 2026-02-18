@@ -8,7 +8,6 @@ import requests
 import time
 import io
 import os
-from PIL import Image
 
 # Configuration
 st.set_page_config(
