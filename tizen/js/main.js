@@ -172,6 +172,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Helper function to load images with headers (bypasses ngrok warning)
+    let blobUrls = [];
+
+    async function loadImageWithHeaders(url) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                blobUrls.push(blobUrl);
+                return blobUrl;
+            }
+        } catch (error) {
+            console.error('Failed to load image:', error);
+        }
+        return null;
+    }
+
+    // Clean up blob URLs to free memory
+    function cleanupBlobUrls() {
+        blobUrls.forEach(url => URL.revokeObjectURL(url));
+        blobUrls = [];
+    }
+
     function renderPhotoGrid() {
         photoGrid.innerHTML = '';
 
@@ -214,17 +243,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeStr = `${Math.floor(timeAgo / 86400)}d ago`;
             }
 
-            card.innerHTML = `
-                <img src="${BACKEND_URL}/api/photos/${photo.filename}" alt="Lego Photo">
-                <div class="photo-info">
-                    <div class="photo-caption">${photo.caption || 'My Lego Set'}</div>
-                    <div class="photo-time">
-                        <span>${timeStr}</span>
-                        ${isNew ? '<span class="new-badge">NEW</span>' : ''}
-                    </div>
+            // Create image element manually to use blob URL
+            const img = document.createElement('img');
+            img.alt = 'Lego Photo';
+
+            // Load image with headers to bypass ngrok warning
+            loadImageWithHeaders(`${BACKEND_URL}/api/photos/${photo.filename}`)
+                .then(blobUrl => {
+                    if (blobUrl) {
+                        img.src = blobUrl;
+                    }
+                });
+
+            // Create photo info div with AI name
+            const photoInfo = document.createElement('div');
+            photoInfo.className = 'photo-info';
+
+            // Build caption HTML - show AI name if available
+            let captionHTML = '';
+            if (photo.ai_identified_name && photo.ai_identified_name !== 'Unknown LEGO Set') {
+                captionHTML = `<div class="photo-ai-name">🤖 ${photo.ai_identified_name}</div>`;
+            }
+            if (photo.caption) {
+                captionHTML += `<div class="photo-caption">${photo.caption}</div>`;
+            }
+            if (!captionHTML) {
+                captionHTML = '<div class="photo-caption">My Lego Set</div>';
+            }
+
+            photoInfo.innerHTML = `
+                ${captionHTML}
+                <div class="photo-time">
+                    <span>${timeStr}</span>
+                    ${isNew ? '<span class="new-badge">NEW</span>' : ''}
                 </div>
             `;
 
+            card.appendChild(img);
+            card.appendChild(photoInfo);
             photoGrid.appendChild(card);
         });
     }
@@ -272,8 +328,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log("Showing fullscreen photo");
 
-        fullscreenImg.src = `${BACKEND_URL}/api/photos/${photo.filename}`;
-        fullscreenCaption.textContent = photo.caption || 'My Lego Set';
+        // Load image with headers to bypass ngrok warning
+        loadImageWithHeaders(`${BACKEND_URL}/api/photos/${photo.filename}`)
+            .then(blobUrl => {
+                if (blobUrl) {
+                    fullscreenImg.src = blobUrl;
+                }
+            });
+
+        // Show AI name and caption in fullscreen
+        let captionText = '';
+        if (photo.ai_identified_name && photo.ai_identified_name !== 'Unknown LEGO Set') {
+            captionText = `🤖 ${photo.ai_identified_name}`;
+            if (photo.caption) {
+                captionText += ` - ${photo.caption}`;
+            }
+        } else {
+            captionText = photo.caption || 'My Lego Set';
+        }
+        fullscreenCaption.textContent = captionText;
 
         myPhotosView.classList.add('hidden');
         fullscreenPhoto.classList.add('active');

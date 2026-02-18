@@ -64,7 +64,7 @@ body {
     font-weight: 900;
     color: var(--lego-yellow);
     text-transform: uppercase;
-    text-shadow: 
+    text-shadow:
         8px 8px 0px var(--lego-black),
         0 0 50px rgba(255, 207, 0, 0.5);
     letter-spacing: 8px;
@@ -72,8 +72,15 @@ body {
 }
 
 @keyframes titlePulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 /* Video Player View */
@@ -152,6 +159,7 @@ body {
         transform: translateX(300px);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -159,13 +167,27 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
 }
 
 @keyframes dotPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 
 /* Photo Grid */
@@ -220,6 +242,7 @@ body {
         transform: scale(0.8) rotateX(90deg);
         opacity: 0;
     }
+
     to {
         transform: scale(1) rotateX(0deg);
         opacity: 1;
@@ -236,6 +259,14 @@ body {
 .photo-info {
     padding: 25px;
     background: var(--lego-white);
+}
+
+.photo-ai-name {
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFD700;
+    text-shadow: 2px 2px 0px var(--lego-black);
+    margin-bottom: 8px;
 }
 
 .photo-caption {
@@ -319,6 +350,7 @@ body {
         transform: scale(0.5);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;

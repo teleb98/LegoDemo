@@ -194,6 +194,10 @@ with tab1:
                     else:
                         st.success(f"✅ {success_count} photo(s) added successfully!")
                         st.warning(f"⚠️ {error_count} photo(s) failed to upload")
+                    
+                    # Show AI identification note
+                    st.info("🤖 AI is analyzing your photos to identify LEGO sets...")
+                    
                     st.balloons()
                     time.sleep(1)
                     st.rerun()
@@ -224,38 +228,50 @@ with tab2:
                 for idx, photo in enumerate(photos):
                     col = cols[idx % 2]
                     
-                    with col:
-                        with st.container(border=True):
-                            # Fetch and display image
-                            img_response = requests.get(
-                                f"{BACKEND_URL}/api/photos/{photo['filename']}",
+                # Display each photo in a card-like format
+                for photo in photos:
+                    with st.container(border=True): # Added border=True to the container
+                        col_img, col_info = st.columns([1, 2])
+                        
+                        with col_img:
+                            # Display photo
+                            img_url = f"{BACKEND_URL}/api/photos/{photo['filename']}"
+                            st.image(img_url, use_container_width=True)
+                        
+                        with col_info:
+                            # Show AI-identified name if available
+                            ai_name = photo.get('ai_identified_name')
+                            if ai_name and ai_name != 'Unknown LEGO Set':
+                                st.markdown(f"**🤖 {ai_name}**")
+                            
+                            # Show user caption if available
+                            caption = photo.get('caption')
+                            if caption:
+                                st.caption(caption)
+                            elif not ai_name or ai_name == 'Unknown LEGO Set':
+                                st.caption("No caption")
+                            
+                            # Show timestamp
+                            time_ago = time.time() - photo['created_at']
+                            if time_ago < 3600:
+                                time_str = f"{int(time_ago / 60)}m ago"
+                            elif time_ago < 86400:
+                                time_str = f"{int(time_ago / 3600)}h ago"
+                            else:
+                                time_str = f"{int(time_ago / 86400)}d ago"
+                            
+                            st.caption(f"🕒 {time_str}")
+                            
+                            # Show NEW badge if recent
+                            if time_ago < 3600:  # Less than 1 hour
+                                st.markdown(":red[**NEW**]")
+                        
+                        # Delete button
+                        if st.button("🗑️ Delete", key=f"del_{photo['id']}", use_container_width=True):
+                            del_response = requests.delete(
+                                f"{BACKEND_URL}/api/photos/{photo['id']}",
                                 headers={'ngrok-skip-browser-warning': 'true'}
                             )
-                            if img_response.status_code == 200:
-                                img = Image.open(io.BytesIO(img_response.content))
-                                st.image(img, use_container_width=True)
-                            
-                            # Caption
-                            if photo.get('caption'):
-                                st.markdown(f"**{photo['caption']}**")
-                            
-                            # Timestamp and new badge
-                            time_diff = time.time() - photo['created_at']
-                            col_a, col_b = st.columns([3, 1])
-                            
-                            with col_a:
-                                if time_diff < 3600:  # Less than 1 hour
-                                    minutes_ago = int(time_diff / 60)
-                                    st.caption(f"Added {minutes_ago} min ago")
-                                elif time_diff < 86400:  # Less than 1 day
-                                    hours_ago = int(time_diff / 3600)
-                                    st.caption(f"Added {hours_ago}h ago")
-                                else:
-                                    days_ago = int(time_diff / 86400)
-                                    st.caption(f"Added {days_ago}d ago")
-                            
-                            with col_b:
-                                if time_diff < 3600:  # Show NEW badge for 1 hour
                                     st.markdown('<span class="new-badge">NEW</span>', unsafe_allow_html=True)
                             
                             # Delete button
