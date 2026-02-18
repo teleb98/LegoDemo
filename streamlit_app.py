@@ -16,9 +16,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# Backend URL - reads from environment variable for Streamlit Cloud deployment
-# Set BACKEND_URL in Streamlit Cloud secrets or use localhost for local development
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5001")
+# Backend URL - Pointing to ngrok for Streamlit Cloud -> Local Server connection
+BACKEND_URL = os.getenv("BACKEND_URL", "https://marlena-glossological-hyperconfidently.ngrok-free.dev")
 
 # Custom CSS - Premium Lego Design
 st.markdown("""
